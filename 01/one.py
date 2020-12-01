@@ -1,5 +1,5 @@
 """1. Find the two numbers in a list that sum to 2020."""
-from typing import List, Tuple
+from typing import List
 
 
 def find_pair(expense_report: List[int]) -> int:
