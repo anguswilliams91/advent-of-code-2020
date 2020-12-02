@@ -1,4 +1,4 @@
-"""1. Find the two numbers in a list that sum to 2020."""
+"""1. Find the two or three numbers in a list that sum to 2020."""
 from typing import List
 
 
@@ -37,16 +37,15 @@ def find_triple(expense_report: List[int]) -> int:
     n = len(sorted_expenses)
 
     for i in range(n):
-        if i == 0 or sorted_expenses[i - 1] != sorted_expenses[i]:
-            j, k = i + 1, n - 1
-            while j < k:
-                s = sorted_expenses[i] + sorted_expenses[j] + sorted_expenses[k]
-                if s < 2020:
-                    j += 1
-                elif s > 2020:
-                    k -= 1
-                else:
-                    return sorted_expenses[i] * sorted_expenses[j] * sorted_expenses[k]
+        j, k = i + 1, n - 1
+        while j < k:
+            s = sorted_expenses[i] + sorted_expenses[j] + sorted_expenses[k]
+            if s < 2020:
+                j += 1
+            elif s > 2020:
+                k -= 1
+            else:
+                return sorted_expenses[i] * sorted_expenses[j] * sorted_expenses[k]
 
 
 if __name__ == "__main__":
