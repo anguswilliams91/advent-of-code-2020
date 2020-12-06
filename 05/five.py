@@ -3,6 +3,7 @@ from typing import List
 
 
 def calculate_seat_number(seat: str) -> int:
+    # calculate the seat number from the binary string representation
     row = seat[:7]
     column = seat[7:]
 
@@ -13,6 +14,7 @@ def calculate_seat_number(seat: str) -> int:
 
 
 def find_missing_seat(seats: List[int]) -> int:
+    # find the missing seat for which both adjacent seats are in the given list
     sorted_seats = sorted(seats)
     diffs = [1] + [s1 - s2 for s1, s2 in zip(sorted_seats[1:], sorted_seats[:-1])]
     return sorted_seats[diffs.index(2)] - 1
