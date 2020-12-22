@@ -24,8 +24,6 @@ def number_of_subrun_orders(run_length: int) -> int:
         num_orders = 1
     elif run_length == 2:
         num_orders = 2
-    elif run_length == 3:
-        num_orders = 4
     else:
         num_orders = (
             number_of_subrun_orders(run_length - 3)
