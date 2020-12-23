@@ -51,7 +51,7 @@ def resolve_fields(possible_fields: List[Dict[str, bool]]) -> List[str]:
                     if j == i:
                         pass
                     else:
-                        if possible_fields[j] and fields[i] in possible_fields[j]:
+                        if fields[i] in possible_fields[j]:
                             possible_fields[j].remove(fields[i])
                         else:
                             pass
@@ -123,3 +123,5 @@ if __name__ == "__main__":
     )
 
     error_rate, second_part = process_tickets(constraints, nearby_tickets, my_ticket)
+    print(error_rate)
+    print(second_part)
