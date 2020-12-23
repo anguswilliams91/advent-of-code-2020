@@ -12,15 +12,16 @@ def update_ship_state(ship_state: ShipState, instruction: str):
     direction = instruction[0]
     distance = int(instruction[1:])
 
+    if direction in ("W", "S", "R"):
+        distance *= -1
+
     if direction == "E" or direction == "W":
-        distance = distance * (1 - 2 * (direction == "W"))
         new_state = ShipState(
             pos_x=ship_state.pos_x + distance,
             pos_y=ship_state.pos_y,
             orientation=ship_state.orientation,
         )
     elif direction == "N" or direction == "S":
-        distance = distance * (1 - 2 * (direction == "S"))
         new_state = ShipState(
             pos_x=ship_state.pos_x,
             pos_y=ship_state.pos_y + distance,
@@ -33,7 +34,6 @@ def update_ship_state(ship_state: ShipState, instruction: str):
             orientation=ship_state.orientation,
         )
     elif direction == "L" or direction == "R":
-        distance = distance * (1 - 2 * (direction == "R"))
         new_state = ShipState(
             pos_x=ship_state.pos_x,
             pos_y=ship_state.pos_y,
@@ -48,8 +48,10 @@ def update_world_state(world_state: WorldState, instruction: str) -> WorldState:
     direction = instruction[0]
     distance = int(instruction[1:])
 
+    if direction in ("W", "S", "R"):
+        distance *= -1
+
     if direction == "N" or direction == "S":
-        distance = distance * (1 - 2 * (direction == "S"))
         new_state = WorldState(
             ship_x=world_state.ship_x,
             ship_y=world_state.ship_y,
@@ -57,7 +59,6 @@ def update_world_state(world_state: WorldState, instruction: str) -> WorldState:
             waypoint_y=world_state.waypoint_y + distance,
         )
     elif direction == "E" or direction == "W":
-        distance = distance * (1 - 2 * (direction == "W"))
         new_state = WorldState(
             ship_x=world_state.ship_x,
             ship_y=world_state.ship_y,
@@ -65,7 +66,6 @@ def update_world_state(world_state: WorldState, instruction: str) -> WorldState:
             waypoint_y=world_state.waypoint_y,
         )
     elif direction == "L" or direction == "R":
-        distance = distance * (1 - 2 * (direction == "R"))
         new_x = world_state.waypoint_x * cos(
             radians(distance)
         ) - world_state.waypoint_y * sin(radians(distance))
