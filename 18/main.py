@@ -40,7 +40,7 @@ def find_closing_brace_index(open_ind: int, expression: List[Union[int, str]]) -
 
 
 def eval_expression(expression: List[Union[int, str]], is_part_one: bool = True) -> int:
-    # evaluate an expression
+    # evaluate an expression using modified arithmetic from part one or two
     if len(expression) == 3:
         n, op, m = expression
         result = OPS[op](n, m)
@@ -90,13 +90,10 @@ if __name__ == "__main__":
         cases = list(map(lambda x: x.strip(), f.readlines()))
 
     processed_cases = list(map(preprocess_expression, cases))
-    part_one = 0
-    for case in processed_cases:
-        part_one += eval_expression(case, is_part_one=True)
-
-    part_two = 0
-    for case in processed_cases:
-        part_two += eval_expression(case, is_part_one=False)
-
-    print(part_one)
-    print(part_two)
+    for is_part_one in (True, False):
+        print(
+            sum(
+                eval_expression(case, is_part_one=is_part_one)
+                for case in processed_cases
+            )
+        )
