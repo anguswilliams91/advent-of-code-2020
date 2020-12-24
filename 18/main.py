@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
     with open("input.txt", "r") as f:
 
-        cases = list(map(lambda x: x.strip(), f.readlines()))
+        cases = map(lambda x: x.strip(), f.readlines())
 
     processed_cases = list(map(preprocess_expression, cases))
     for is_part_one in (True, False):
