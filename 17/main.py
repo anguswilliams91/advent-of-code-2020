@@ -1,14 +1,8 @@
-"""17. Conway cubes.
-
-1. Consider only neighbours of active cubes and active cubes because no other cubes
-   can change state. 
-
-"""
+"""17. Conway cubes."""
 from collections import defaultdict
 from copy import deepcopy
-from dataclasses import dataclass
 from itertools import product
-from typing import DefaultDict, List, Tuple
+from typing import List, Tuple
 
 
 def get_neighbour_locations(dim: int) -> List[Tuple]:
