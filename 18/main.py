@@ -39,7 +39,7 @@ def find_closing_brace_index(open_ind: int, expression: List[Union[int, str]]) -
     return closing_ind
 
 
-def eval_expression(expression: List[Union[int, str]]) -> int:
+def eval_expression(expression: List[Union[int, str]], is_part_one: bool = True) -> int:
     # evaluate an expression
     if len(expression) == 3:
         n, op, m = expression
@@ -50,12 +50,35 @@ def eval_expression(expression: List[Union[int, str]]) -> int:
         loc_closing_brace = find_closing_brace_index(loc_first_brace, expression)
         result = eval_expression(
             expression[:loc_first_brace]
-            + [eval_expression(expression[loc_first_brace + 1 : loc_closing_brace])]
-            + expression[loc_closing_brace + 1 :]
+            + [
+                eval_expression(
+                    expression[loc_first_brace + 1 : loc_closing_brace],
+                    is_part_one=is_part_one,
+                )
+            ]
+            + expression[loc_closing_brace + 1 :],
+            is_part_one=is_part_one,
         )
 
     else:
-        result = eval_expression([eval_expression(expression[:3])] + expression[3:])
+        if is_part_one:
+            # evaluate left to right
+            result = eval_expression(
+                [eval_expression(expression[:3], is_part_one)] + expression[3:]
+            )
+        else:
+            # evaluate add before multiply
+            try:
+                loc_first_plus = expression.index("+")
+                s = eval_expression(expression[loc_first_plus - 1 : loc_first_plus + 2])
+                result = eval_expression(
+                    expression[: loc_first_plus - 1]
+                    + [s]
+                    + expression[loc_first_plus + 2 :],
+                    is_part_one=False,
+                )
+            except ValueError:
+                result = eval_expression(expression)
 
     return result
 
@@ -66,9 +89,14 @@ if __name__ == "__main__":
 
         cases = list(map(lambda x: x.strip(), f.readlines()))
 
-    processed_cases = map(preprocess_expression, cases)
+    processed_cases = list(map(preprocess_expression, cases))
     part_one = 0
     for case in processed_cases:
-        part_one += eval_expression(case)
+        part_one += eval_expression(case, is_part_one=True)
+
+    part_two = 0
+    for case in processed_cases:
+        part_two += eval_expression(case, is_part_one=False)
 
     print(part_one)
+    print(part_two)
