@@ -33,9 +33,7 @@ def part_one(deck_1: List[int], deck_2: List[int]) -> int:
     # play the game and then return the winner's score
     n = len(deck_1) + len(deck_2)
     deck_1, deck_2 = play_combat(deck_1, deck_2)
-
     winners_deck = deck_1 or deck_2
-
     return sum(i * j for i, j in zip(range(1, n + 1), winners_deck[::-1]))
 
 
@@ -85,10 +83,8 @@ def play_recursive_combat(
 def part_two(deck_1: List[int], deck_2: List[int]) -> int:
     # play the crab at recursive combat
     won_by_short_circuit, deck_1, deck_2 = play_recursive_combat(deck_1, deck_2)
-
     winners_deck = deck_1 if (won_by_short_circuit or not deck_2) else deck_2
     n = len(winners_deck)
-
     return sum(i * j for i, j in zip(range(1, n + 1), winners_deck[::-1]))
 
 
