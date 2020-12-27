@@ -45,9 +45,7 @@ def part_one(
     return count
 
 
-def part_two(
-    could_contain_allergen: DefaultDict[str, Set[str]]
-) -> DefaultDict[str, str]:
+def part_two(could_contain_allergen: DefaultDict[str, Set[str]]) -> str:
     # resolve which allergen is in which ingredient
     n_allergens = len(could_contain_allergen.keys())
     ingredient_to_allergen = {}
