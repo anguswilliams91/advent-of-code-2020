@@ -7,14 +7,9 @@ from typing import DefaultDict, List, Set
 
 def process_recipes(
     foods: List[str]
-) -> (Set[str], DefaultDict[str, int], DefaultDict[str, Set[str]]):
+) -> (DefaultDict[str, int], DefaultDict[str, Set[str]]):
 
-    all_ingredients = set()
-    for food in foods:
-        ingredients, _ = food.split("(")
-        all_ingredients = all_ingredients | set(ingredients.strip().split())
-
-    could_contain_allergen = defaultdict(lambda: all_ingredients)
+    could_contain_allergen = defaultdict(set)
     ingredient_counts = defaultdict(int)
     for food in foods:
 
@@ -26,19 +21,23 @@ def process_recipes(
         allergens = set(allergens.strip(")")[8:].strip().split(", "))
 
         for a in allergens:
-            could_contain_allergen[a] = ingredients & could_contain_allergen[a]
+            if a in could_contain_allergen:
+                could_contain_allergen[a] = ingredients & could_contain_allergen[a]
+            else:
+                could_contain_allergen[a] = ingredients
 
-    unseen_ingredients = all_ingredients - reduce(
-        lambda a, b: a | b, could_contain_allergen.values()
-    )
-
-    return unseen_ingredients, ingredient_counts, could_contain_allergen
+    return ingredient_counts, could_contain_allergen
 
 
 def part_one(
-    unseen_ingredients: Set[str], ingredient_counts: DefaultDict[str, int]
+    could_contain_allergen: DefaultDict[str, Set[str]],
+    ingredient_counts: DefaultDict[str, int],
 ) -> int:
     # count the number of appearances of ingredients that cannot contain allergens
+    unseen_ingredients = set(ingredient_counts.keys()) - reduce(
+        lambda a, b: a | b, could_contain_allergen.values()
+    )
+
     count = 0
     for i in unseen_ingredients:
         count += ingredient_counts[i]
@@ -76,8 +75,6 @@ if __name__ == "__main__":
     with open("input.txt", "r") as f:
         foods = f.read().splitlines()
 
-    unseen_ingredients, ingredient_counts, could_contain_allergen = process_recipes(
-        foods
-    )
-    print(part_one(unseen_ingredients, ingredient_counts))
+    ingredient_counts, could_contain_allergen = process_recipes(foods)
+    print(part_one(could_contain_allergen, ingredient_counts))
     print(part_two(could_contain_allergen))
