@@ -2,9 +2,9 @@
 C = 20201227
 
 
-def find_loop_size(starting_value: int, public_key: int) -> int:
+def find_loop_size(public_key: int) -> int:
     # find the loop size by brute force
-    key = starting_value
+    key = 1
     loop_size = 0
     while key != public_key:
         key = (key * 7) % C
@@ -15,8 +15,8 @@ def find_loop_size(starting_value: int, public_key: int) -> int:
 
 def find_encryption_key(door_key: int, card_key: int) -> int:
     # find the encryption key implied by the door and card keys
-    door_loop_size = find_loop_size(1, door_key)
-    card_loop_size = find_loop_size(1, card_key)
+    door_loop_size = find_loop_size(door_key)
+    card_loop_size = find_loop_size(card_key)
 
     if door_loop_size < card_loop_size:
         subject_number = card_key
