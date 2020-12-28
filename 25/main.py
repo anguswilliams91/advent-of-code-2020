@@ -16,18 +16,10 @@ def find_loop_size(public_key: int) -> int:
 def find_encryption_key(door_key: int, card_key: int) -> int:
     # find the encryption key implied by the door and card keys
     door_loop_size = find_loop_size(door_key)
-    card_loop_size = find_loop_size(card_key)
-
-    if door_loop_size < card_loop_size:
-        subject_number = card_key
-        loops = door_loop_size
-    else:
-        subject_number = door_key
-        loops = card_loop_size
 
     encryption_key = 1
-    for _ in range(loops):
-        encryption_key = (encryption_key * subject_number) % C
+    for _ in range(door_loop_size):
+        encryption_key = (encryption_key * card_key) % C
 
     return encryption_key
 
