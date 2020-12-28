@@ -3,14 +3,7 @@ from typing import List
 
 
 def find_pair(expense_report: List[int]) -> int:
-    """Return pair of inputs that sum to 2020.
-
-    Args:
-        expense_report (List[int]): list of integers.
-
-    Returns:
-        int: the product of the two numbers that sum to 2020.
-    """
+    # find pair of inputs that sum to 2020
     sorted_expenses = sorted(expense_report)
 
     first = 0
@@ -25,14 +18,7 @@ def find_pair(expense_report: List[int]) -> int:
 
 
 def find_triple(expense_report: List[int]) -> int:
-    """Find triple of inputs that sum to 2020.
-
-    Args:
-        expense_report (List[int]): list of integers.
-
-    Returns:
-        int: the product of the three numbers that sum to 2020.
-    """
+    # Find triple of inputs that sum to 2020
     sorted_expenses = sorted(expense_report)
     n = len(sorted_expenses)
 
