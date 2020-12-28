@@ -1,6 +1,6 @@
 """22. Crab cards."""
 from copy import copy
-from typing import List, Optional, Set, Tuple
+from typing import List, Set, Tuple
 
 
 def parse_input(input_string: str) -> (List[int], List[int]):
@@ -40,7 +40,7 @@ def part_one(deck_1: List[int], deck_2: List[int]) -> int:
 def play_recursive_combat(
     deck_1: List[int],
     deck_2: List[int],
-    memory: Set[Tuple[List[int], List[int]]] = set(),
+    memory: Set[Tuple[Tuple[int], Tuple[int]]] = set(),
 ) -> (List[int], List[int]):
     # play the recursive version of the game
 
