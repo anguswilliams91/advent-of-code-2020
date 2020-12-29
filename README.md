@@ -1,4 +1,4 @@
-# aoc-2020
+# advent-of-code-2020
 
 ![](https://raw.githubusercontent.com/anguswilliams91/aoc-2020/main/calendar.png)
 
