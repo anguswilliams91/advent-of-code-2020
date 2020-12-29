@@ -75,14 +75,13 @@ def find_possible_neighbours(tiles: Dict[int, np.ndarray]) -> Dict[int, Tuple[in
 
 
 def match_two_tiles(static_tile: Tile, other_tile: Tile) -> int:
-    # match two tiles, keeping one static and moving the other
+    # match two tiles, keeping one static and rotating / reflecting the other
 
     def check_match(matching_edges):
         matching_edge = matching_edges.pop()
         i = static_tile.list_edges.index(matching_edge)
         j = other_tile.list_edges.index(matching_edge)
-        t = (i, j)
-        if t in {(0, 1), (1, 0), (2, 3), (3, 2)}:
+        if (i, j) in {(0, 1), (1, 0), (2, 3), (3, 2)}:
             return i
         else:
             return None
@@ -106,7 +105,7 @@ def match_two_tiles(static_tile: Tile, other_tile: Tile) -> int:
 def build_image(
     tiles: Dict[int, Tile], tile_to_neighbours: Dict[int, int]
 ) -> np.ndarray:
-    # build the image (assumes no dead ends)
+    # build the image from the set of tiles (assumes no dead ends)
     n_tiles = len(list(tiles.keys()))
     grid_size = int(n_tiles ** 0.5)
     id_grid = np.zeros((grid_size, grid_size), int)
