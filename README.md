@@ -2,7 +2,7 @@
 
 My solutions to advent of code 2020, in python.
 
-To reproduce the results, create a python environment (version 3.8) and install the requirements:
+To reproduce the results, create a python 3.8 environment and install the requirements:
 
 ```
 pip install -r requirements.txt
