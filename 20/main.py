@@ -8,7 +8,7 @@ import numpy as np
 
 
 MONSTER = """
-                #   
+                  # 
 #    ##    ##    ###
  #  #  #  #  #  #   
 """
@@ -49,10 +49,9 @@ class Tile:
         self.image = np.rot90(self.image, k=n_turns)
 
     def __str__(self):
-        s = f"Tile {self.id}\n"
         v = " " + str(self.image)[1:-1]
         v = v.replace("0", ".").replace("1", "#").replace("[", "").replace("]", "")
-        return s + v
+        return v
 
     def __repr__(self):
         return str(self)
@@ -171,7 +170,7 @@ def build_image(
         current_id = unresolved_ids.pop()
 
     # build the image from the id grid
-    image = np.zeros((grid_size * 8, grid_size * 8))
+    image = np.zeros((grid_size * 8, grid_size * 8), dtype=int)
     for tile_id, tile in tiles.items():
         ind = np.where(id_grid == tile_id)
         i, j = ind[0][0], ind[1][0]
@@ -180,36 +179,33 @@ def build_image(
     return image
 
 
-def match_monster(image: np.array, monster: np.array):
-    # match the monster to the image
-    n = image.shape[0]
-    w, h = monster.shape
-    monster_pixels = monster.sum()
-    num_monsters = 0
-    for i in range(n - w - 1):
-        for j in range(n - h - 1):
-            sub_image = image[i : i + w, j : j + h]
-            num_monsters += (monster * sub_image).sum() == monster_pixels
-
-    return num_monsters
-
-
-def part_two(image: np.array):
+def measure_water_roughness(image: np.array) -> int:
     # count the number of pixels that dont belong to a monster
     monster = []
     for row in MONSTER.splitlines()[1:]:
         monster.append([c == "#" for c in row])
     monster = np.array(monster, dtype=int)
-    w, h = monster.shape
+
     n = image.shape[0]
+    w, h = monster.shape
+    monster_pixels = monster.sum()
+
+    def count_monsters(transformed_image):
+        # scan an image an count the number of monsters
+        num_monsters = 0
+        for i in range(n - w + 1):
+            for j in range(n - h + 1):
+                sub_image = transformed_image[i : i + w, j : j + h]
+                num_monsters += (monster * sub_image).sum() == monster_pixels
+
+        return num_monsters
 
     for i in range(8):
         if i == 4:
             image = image[:, ::-1]
         image = np.rot90(image)
 
-        num_monsters = match_monster(image, monster)
-        print(num_monsters)
+        num_monsters = count_monsters(image)
         if num_monsters > 0:
             break
 
@@ -237,4 +233,5 @@ if __name__ == "__main__":
 
     # part two
     image = build_image(tiles, tile_to_neighbours)
-    print(part_two(image))
+    print(measure_water_roughness(image))
+
