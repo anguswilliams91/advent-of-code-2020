@@ -1,59 +1,240 @@
-"""20. Rebuilding a camera array."""
+"""20. Seamonsters in images."""
 from collections import defaultdict
-from copy import deepcopy
 from functools import reduce
 from itertools import combinations
-from typing import Dict, List, Set
+from typing import List, Dict, Set, Tuple
 
-EDGE_INDICES = ((0, None), (-1, None), (None, 0), (None, -1))
-
-
-def make_tile(tile_string: str) -> List[List[bool]]:
-    tile = tile_string.splitlines()
-    tile_id = int(tile[0].split()[1][:-1])
-
-    tile_values = [[v == "#" for v in row] for row in tile[1:]]
-
-    return tile_id, tile_values
+import numpy as np
 
 
-def make_tiles(tiles_string: List[str]) -> Dict[int, List[List[bool]]]:
-    return {tile_id: value for (tile_id, value) in map(make_tile, tiles_string)}
+MONSTER = """
+                #   
+#    ##    ##    ###
+ #  #  #  #  #  #   
+"""
 
 
-def part_one(tiles: Dict[int, List[List[bool]]]) -> Dict[int, Set[int]]:
-    # find the corner tiles - these are tiles where only two edges match edges in other tiles...maybe
-    edge_matches = defaultdict(set)
-    edges = defaultdict(set)
+class Tile:
+    def __init__(self, tile_string: str):
+        tile = tile_string.splitlines()
+        self.id = int(tile[0].split()[1][:-1])
+        self.image = np.array([[v == "#" for v in row] for row in tile[1:]], dtype=int)
 
-    for i, tile in tiles.items():
-        es = set()
+    @property
+    def edges(self) -> Set[Tuple[int]]:
+        first_row = tuple(self.image[0, :])
+        last_row = tuple(self.image[-1, :])
+        first_column = tuple(self.image[:, 0])
+        last_column = tuple(self.image[:, -1])
+        return {first_row, last_row, first_column, last_column}
 
-        for p, q in EDGE_INDICES:
-            if p is None:
-                e = [tile[_][q] for _ in range(10)]
+    @property
+    def list_edges(self) -> Set[Tuple[int]]:
+        first_row = tuple(self.image[0, :])
+        last_row = tuple(self.image[-1, :])
+        first_column = tuple(self.image[:, 0])
+        last_column = tuple(self.image[:, -1])
+        return [first_row, last_row, first_column, last_column]
+
+    def reflect_up_down(self):
+        # reflect the tile vertically
+        self.image = self.image[::-1, :]
+
+    def reflect_left_right(self):
+        # reflect the tile horizontally
+        self.image = self.image[:, ::-1]
+
+    def rotate(self, n_turns: int):
+        # rotate clockwise by 90 degrees ``n_turns`` times
+        self.image = np.rot90(self.image, k=n_turns)
+
+    def __str__(self):
+        s = f"Tile {self.id}\n"
+        v = " " + str(self.image)[1:-1]
+        v = v.replace("0", ".").replace("1", "#").replace("[", "").replace("]", "")
+        return s + v
+
+    def __repr__(self):
+        return str(self)
+
+
+def find_possible_neighbours(tiles: Dict[int, np.ndarray]) -> Dict[int, Tuple[int]]:
+    # for each tile, find tiles that could be its neighbour
+    tile_to_neighbours = defaultdict(set)
+    pairs = combinations(tiles.keys(), 2)
+    for (i, j) in pairs:
+        edges_i = tiles[i].edges | {e[::-1] for e in tiles[i].edges}
+        edges_j = tiles[j].edges | {e[::-1] for e in tiles[j].edges}
+
+        if edges_i & edges_j:
+            tile_to_neighbours[i].add(j)
+            tile_to_neighbours[j].add(i)
+        else:
+            pass
+
+    return {t: tuple(n) for t, n in tile_to_neighbours.items()}
+
+
+def match_two_tiles(static_tile: Tile, other_tile: Tile) -> int:
+    # match two tiles, keeping one static and moving the other
+
+    def check_match(matching_edges):
+        matching_edge = matching_edges.pop()
+        i = static_tile.list_edges.index(matching_edge)
+        j = other_tile.list_edges.index(matching_edge)
+        t = (i, j)
+        if t in {(0, 1), (1, 0), (2, 3), (3, 2)}:
+            return i
+        else:
+            return None
+
+    for i in range(8):
+        if i == 4:
+            other_tile.reflect_left_right()
+        other_tile.rotate(1)
+        matching_edges = other_tile.edges & static_tile.edges
+
+        if matching_edges:
+            m = check_match(matching_edges)
+            if m is not None:
+                break
             else:
-                e = tile[p]
+                continue
 
-            es.add(tuple(e))
-            es.add(tuple(reversed(e)))
-        edges[i] = es
+    return m
 
-    for i, tile in tiles.items():
-        for j, tile in tiles.items():
-            if i == j:
-                pass
+
+def build_image(
+    tiles: Dict[int, Tile], tile_to_neighbours: Dict[int, int]
+) -> np.ndarray:
+    # build the image (assumes no dead ends)
+    n_tiles = len(list(tiles.keys()))
+    grid_size = int(n_tiles ** 0.5)
+    id_grid = np.zeros((grid_size, grid_size), int)
+    unresolved_ids = set()
+
+    # pick one of the corner edges to start
+    first_corner_id = [
+        tile_id
+        for tile_id, neighbours in tile_to_neighbours.items()
+        if len(neighbours) == 2
+    ][0]
+    id_grid[0, 0] = first_corner_id
+
+    first_corner = tiles[first_corner_id]
+    neighbour_ids = tile_to_neighbours[first_corner_id]
+
+    # find which edges are unmatched and orient the image so that these are top and left
+    unmatched_edges = first_corner.edges
+    for n in neighbour_ids:
+        neighbour = tiles[n]
+        other_edges = neighbour.edges | {e[::-1] for e in neighbour.edges}
+        unmatched_edges = unmatched_edges - (unmatched_edges & other_edges)
+
+    unmatched_indices = {
+        first_corner.list_edges.index(unmatched_edges.pop()),
+        first_corner.list_edges.index(unmatched_edges.pop()),
+    }
+    if unmatched_indices == {0, 3}:
+        first_corner.rotate(1)
+    elif unmatched_indices == {1, 3}:
+        first_corner.rotate(2)
+    elif unmatched_indices == {1, 2}:
+        first_corner.reflect_up_down()
+    else:
+        pass
+
+    # now iteratively construct the grid
+    id_grid[0, 0] = first_corner_id
+    current_id = first_corner_id
+    unresolved_ids.add(first_corner_id)
+    while 0 in id_grid:
+        for neighbour in tile_to_neighbours[current_id]:
+            if neighbour in id_grid:
+                continue
             else:
-                edge_matches[i] = edge_matches[i] | (edges[i] & edges[j])
+                matched_edge = match_two_tiles(tiles[current_id], tiles[neighbour])
 
-    corners = [i for i, v in edge_matches.items() if len(v) // 2 == 2]
+                ind = np.where(id_grid == current_id)
+                (i, j) = (ind[0][0], ind[1][0])
+                if matched_edge == 0:
+                    id_grid[(i - 1, j)] = neighbour
+                elif matched_edge == 1:
+                    id_grid[(i + 1, j)] = neighbour
+                elif matched_edge == 2:
+                    id_grid[(i, j - 1)] = neighbour
+                else:
+                    id_grid[(i, j + 1)] = neighbour
 
-    return reduce(lambda a, b: a * b, corners)
+                unresolved_ids.add(neighbour)
+
+        current_id = unresolved_ids.pop()
+
+    # build the image from the id grid
+    image = np.zeros((grid_size * 8, grid_size * 8))
+    for tile_id, tile in tiles.items():
+        ind = np.where(id_grid == tile_id)
+        i, j = ind[0][0], ind[1][0]
+        image[i * 8 : (i + 1) * 8, j * 8 : (j + 1) * 8] = tile.image[1:-1, 1:-1]
+
+    return image
+
+
+def match_monster(image: np.array, monster: np.array):
+    # match the monster to the image
+    n = image.shape[0]
+    w, h = monster.shape
+    monster_pixels = monster.sum()
+    num_monsters = 0
+    for i in range(n - w - 1):
+        for j in range(n - h - 1):
+            sub_image = image[i : i + w, j : j + h]
+            num_monsters += (monster * sub_image).sum() == monster_pixels
+
+    return num_monsters
+
+
+def part_two(image: np.array):
+    # count the number of pixels that dont belong to a monster
+    monster = []
+    for row in MONSTER.splitlines()[1:]:
+        monster.append([c == "#" for c in row])
+    monster = np.array(monster, dtype=int)
+    w, h = monster.shape
+    n = image.shape[0]
+
+    for i in range(8):
+        if i == 4:
+            image = image[:, ::-1]
+        image = np.rot90(image)
+
+        num_monsters = match_monster(image, monster)
+        print(num_monsters)
+        if num_monsters > 0:
+            break
+
+    return int(image.sum() - num_monsters * monster.sum())
 
 
 if __name__ == "__main__":
     with open("input.txt", "r") as f:
         tiles_string = f.read().split("\n\n")
 
-    tiles = make_tiles(tiles_string)
-    print(part_one(tiles))
+    tiles = {t.id: t for t in map(Tile, tiles_string)}
+
+    # part one
+    tile_to_neighbours = find_possible_neighbours(tiles)
+    print(
+        reduce(
+            lambda a, b: a * b,
+            {
+                tile_id
+                for tile_id, neighbours in tile_to_neighbours.items()
+                if len(neighbours) == 2
+            },
+        )
+    )
+
+    # part two
+    image = build_image(tiles, tile_to_neighbours)
+    print(part_two(image))
