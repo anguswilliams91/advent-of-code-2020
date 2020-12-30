@@ -1,4 +1,6 @@
-# aoc-2020
+# advent-of-code-2020
+
+![](https://raw.githubusercontent.com/anguswilliams91/aoc-2020/main/calendar.png)
 
 My solutions to advent of code 2020, in python.
 
