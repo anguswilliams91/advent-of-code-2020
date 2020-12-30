@@ -3,7 +3,6 @@ from argparse import ArgumentParser
 import os
 import time
 import pathlib
-from typing import Union
 
 BASE_PATH = pathlib.Path(__file__).parent.absolute()
 
