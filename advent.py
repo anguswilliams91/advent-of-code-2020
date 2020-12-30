@@ -8,9 +8,9 @@ from typing import Union
 BASE_PATH = pathlib.Path(__file__).parent.absolute()
 
 
-def run_day(day: Union[int, str]):
+def run_day(day: int):
     # run the given day
-    if day not in range(1, 26):
+    if int(day) not in range(1, 26):
         raise ValueError("day must be between 1 and 25!")
 
     print(f"Running day {day}.")
