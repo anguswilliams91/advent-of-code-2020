@@ -45,7 +45,7 @@ class Tile:
         self.image = self.image[:, ::-1]
 
     def rotate(self, n_turns: int):
-        # rotate clockwise by 90 degrees ``n_turns`` times
+        # rotate anticlockwise by 90 degrees ``n_turns`` times
         self.image = np.rot90(self.image, k=n_turns)
 
     def __str__(self):
@@ -63,7 +63,7 @@ def find_possible_neighbours(tiles: Dict[int, np.ndarray]) -> Dict[int, Tuple[in
     pairs = combinations(tiles.keys(), 2)
     for (i, j) in pairs:
         edges_i = tiles[i].edges | {e[::-1] for e in tiles[i].edges}
-        edges_j = tiles[j].edges | {e[::-1] for e in tiles[j].edges}
+        edges_j = tiles[j].edges
 
         if edges_i & edges_j:
             tile_to_neighbours[i].add(j)
@@ -145,7 +145,6 @@ def build_image(
     # now iteratively construct the grid
     id_grid[0, 0] = first_corner_id
     current_id = first_corner_id
-    unresolved_ids.add(first_corner_id)
     while 0 in id_grid:
         for neighbour in tile_to_neighbours[current_id]:
             if neighbour in id_grid:
