@@ -47,7 +47,7 @@ def count_possible_outer_bags(string_rules: List[str]) -> int:
     return len(visited) - 1
 
 
-def count_inner_bags(rules: Dict[str, List[Tuple[int, str]]], colour: str):
+def count_inner_bags(rules: Dict[str, List[Tuple[int, str]]], colour: str) -> int:
     if not rules[colour]:
         return 0
 
