@@ -36,16 +36,16 @@ def count_possible_outer_bags(string_rules: List[str]) -> int:
     # breadth first search
     visited = defaultdict(bool)
     queue = ["shiny gold"]
-    visited["shiny gold"] = True
+    visited = {"shiny gold"}
 
     while queue:
         current = queue.pop(0)
         for other in bag_graph[current]:
-            if not visited[other]:
-                visited[other] = True
+            if other not in visited:
+                visited.add(other)
                 queue.append(other)
 
-    return sum(visited.values()) - 1
+    return len(visited) - 1
 
 
 def count_inner_bags(rules: Dict[str, List[Tuple[int, str]]], colour):
