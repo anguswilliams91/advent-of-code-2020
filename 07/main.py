@@ -34,7 +34,6 @@ def count_possible_outer_bags(string_rules: List[str]) -> int:
                 bag_graph[child].add(parent)
 
     # breadth first search
-    visited = defaultdict(bool)
     queue = ["shiny gold"]
     visited = {"shiny gold"}
 
